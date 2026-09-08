@@ -1,0 +1,34 @@
+{
+  "name": "Issue #42 — repositório antes da melhoria de AX",
+  "setup": [
+    {
+      "action": "run_script",
+      "command": "cp -R \"$AXIS_CONFIG_DIR/fixtures/before/.\" ."
+    }
+  ],
+  "prompt": "Resolva a issue #42 neste repositório: a função de pricing produz valores fracionários ou negativos em entradas limítrofes. Preserve a API pública e siga as convenções existentes. Verifique a mudança. Não altere os testes apenas para fazê-los passar.",
+  "judge": [
+    {
+      "check": "A implementação de calculateTotalInCents retorna sempre um inteiro em centavos para entradas válidas e arredonda o desconto com Math.round ou comportamento equivalente",
+      "weight": 0.25
+    },
+    {
+      "check": "A implementação rejeita unitPriceInCents não inteiro ou negativo, quantity não inteira ou menor que 1, e discountPercent fora do intervalo de 0 a 100",
+      "weight": 0.25
+    },
+    {
+      "check": "O agente executou a suíte correta e apresentou evidência de que todos os testes passaram",
+      "weight": 0.25
+    },
+    {
+      "check": "O agente preservou a exportação e não alterou os testes para mascarar a falha",
+      "weight": 0.15
+    },
+    {
+      "check": "A trajetória foi autônoma, focada e não exigiu esclarecimento humano",
+      "weight": 0.1
+    }
+  ],
+  "artifacts": ["src/pricing.js", "package.json"]
+}
+

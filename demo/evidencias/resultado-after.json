@@ -1,0 +1,26 @@
+{
+  "schema": "axis-demo-summary/v1",
+  "condition": "after",
+  "runDateUtc": "2026-09-08T00:25:47.066Z",
+  "axisVersion": "1.17.5",
+  "axisCommit": "71fb75838c5873bf27f9b97e3240baa19b0b16b8",
+  "agent": "codex",
+  "sampleSize": 1,
+  "score": {
+    "axisResult": 99,
+    "goalAchievement": 100,
+    "environment": 100,
+    "service": 100,
+    "agent": 96
+  },
+  "durationMs": 56470,
+  "interactions": 9,
+  "environmentInteractions": 4,
+  "tokenUsageAsReported": {
+    "input": 68819,
+    "cacheReadInput": 57984,
+    "output": 1118
+  },
+  "caveat": "Execução única e ilustrativa. Os campos de tokens reproduzem o manifest do AXIS e não devem ser convertidos diretamente em custo sem confirmar a semântica de cache."
+}
+

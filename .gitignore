@@ -1,0 +1,12 @@
+.DS_Store
+*.log
+
+# Relatórios completos podem conter caminhos locais, prompts e transcripts.
+demo/.axis/
+**/*.raw.ndjson
+
+# Dependências e builds são reproduzíveis e não devem ser versionados.
+node_modules/
+dist/
+coverage/
+

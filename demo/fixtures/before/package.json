@@ -1,0 +1,9 @@
+{
+  "name": "pricing-lab-before",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify-legacy": "node --test"
+  }
+}
+

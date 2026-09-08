@@ -1,0 +1,244 @@
+{
+  "schema": "ax-preflight/v1",
+  "generatedAt": "2026-09-08T00:42:27.115Z",
+  "target": "/Users/alexsandersiqueira/projects/ux-dx-ax/opensource/axis",
+  "fileCount": 297,
+  "newestFileMtime": "2026-09-08T00:12:39.927Z",
+  "score": 88,
+  "level": "Bom",
+  "passed": 21,
+  "total": 24,
+  "categories": [
+    {
+      "name": "Contexto e descoberta",
+      "passed": 3,
+      "total": 4,
+      "score": 75
+    },
+    {
+      "name": "Ambiente reproduzível",
+      "passed": 4,
+      "total": 4,
+      "score": 100
+    },
+    {
+      "name": "Verificação e feedback",
+      "passed": 4,
+      "total": 4,
+      "score": 100
+    },
+    {
+      "name": "Automação e governança",
+      "passed": 2,
+      "total": 4,
+      "score": 50
+    },
+    {
+      "name": "Interfaces legíveis por máquina",
+      "passed": 4,
+      "total": 4,
+      "score": 100
+    },
+    {
+      "name": "Segurança e recuperação",
+      "passed": 4,
+      "total": 4,
+      "score": 100
+    }
+  ],
+  "checks": [
+    {
+      "category": "Contexto e descoberta",
+      "id": "readme",
+      "label": "README com propósito e início rápido",
+      "pass": true,
+      "evidence": "README encontrado",
+      "action": "Explique propósito, pré-requisitos, instalação e primeiro resultado esperado."
+    },
+    {
+      "category": "Contexto e descoberta",
+      "id": "agents",
+      "label": "AGENTS.md com instruções operacionais",
+      "pass": true,
+      "evidence": "AGENTS.md encontrado",
+      "action": "Documente mapa do repositório, comandos canônicos, limites e critério de pronto."
+    },
+    {
+      "category": "Contexto e descoberta",
+      "id": "contributing",
+      "label": "Guia de contribuição ou desenvolvimento",
+      "pass": false,
+      "evidence": "Guia específico não encontrado",
+      "action": "Registre o fluxo local, convenções e como validar uma mudança."
+    },
+    {
+      "category": "Contexto e descoberta",
+      "id": "architecture",
+      "label": "Arquitetura, ADRs ou mapa de módulos",
+      "pass": true,
+      "evidence": "Arquitetura descrita no AGENTS.md",
+      "action": "Mostre limites de módulos, dependências e decisões que não devem ser revertidas."
+    },
+    {
+      "category": "Ambiente reproduzível",
+      "id": "lockfile",
+      "label": "Dependências travadas",
+      "pass": true,
+      "evidence": "Busca por lockfiles conhecidos",
+      "action": "Versione o lockfile apropriado ao ecossistema."
+    },
+    {
+      "category": "Ambiente reproduzível",
+      "id": "runtime",
+      "label": "Versão de runtime/toolchain declarada",
+      "pass": true,
+      "evidence": "package.json engines: {\"node\":\">=18.0.0\"}",
+      "action": "Fixe a versão compatível de runtime e package manager."
+    },
+    {
+      "category": "Ambiente reproduzível",
+      "id": "bootstrap",
+      "label": "Instalação ou bootstrap em um comando",
+      "pass": true,
+      "evidence": "Script de bootstrap encontrado",
+      "action": "Forneça um comando idempotente para preparar o ambiente."
+    },
+    {
+      "category": "Ambiente reproduzível",
+      "id": "env-contract",
+      "label": "Contrato de configuração e segredos",
+      "pass": true,
+      "evidence": "Busca por exemplo de ambiente ou documentação de variáveis",
+      "action": "Liste variáveis, defaults seguros e onde obter credenciais; nunca versione segredos."
+    },
+    {
+      "category": "Verificação e feedback",
+      "id": "tests",
+      "label": "Testes presentes e comando canônico",
+      "pass": true,
+      "evidence": "npm test → vitest run",
+      "action": "Inclua testes rápidos e um comando de saída não interativa."
+    },
+    {
+      "category": "Verificação e feedback",
+      "id": "types",
+      "label": "Checagem de tipos ou compilação",
+      "pass": true,
+      "evidence": "typecheck → tsc --noEmit",
+      "action": "Disponibilize uma checagem estrutural rápida, quando aplicável."
+    },
+    {
+      "category": "Verificação e feedback",
+      "id": "lint",
+      "label": "Lint/format automatizado",
+      "pass": true,
+      "evidence": "lint → eslint src/ test/",
+      "action": "Forneça lint/format determinísticos e, se possível, autofix seguro."
+    },
+    {
+      "category": "Verificação e feedback",
+      "id": "build",
+      "label": "Build executável e documentado",
+      "pass": true,
+      "evidence": "build → tsc -p tsconfig.build.json && npm run build:report-ui",
+      "action": "Padronize o build e deixe claro o artefato esperado."
+    },
+    {
+      "category": "Automação e governança",
+      "id": "ci",
+      "label": "Pipeline de CI versionado",
+      "pass": true,
+      "evidence": "2 workflow(s) GitHub Actions",
+      "action": "Execute os validadores canônicos em cada mudança."
+    },
+    {
+      "category": "Automação e governança",
+      "id": "ci-tests",
+      "label": "CI executa testes/build",
+      "pass": true,
+      "evidence": "Comandos procurados nos workflows",
+      "action": "Não deixe comandos documentados divergirem do pipeline real."
+    },
+    {
+      "category": "Automação e governança",
+      "id": "security",
+      "label": "Política de segurança",
+      "pass": false,
+      "evidence": "Busca por SECURITY.md",
+      "action": "Documente reporte de vulnerabilidades e limites de divulgação."
+    },
+    {
+      "category": "Automação e governança",
+      "id": "ownership",
+      "label": "Ownership ou responsáveis claros",
+      "pass": false,
+      "evidence": "Busca por CODEOWNERS ou mantenedores",
+      "action": "Defina quem aprova mudanças de risco e mantém instruções do agente."
+    },
+    {
+      "category": "Interfaces legíveis por máquina",
+      "id": "contracts",
+      "label": "Contratos/esquemas detectáveis",
+      "pass": true,
+      "evidence": "Busca por OpenAPI, GraphQL, schemas, tipos ou protobuf",
+      "action": "Publique schemas, tipos, exemplos válidos e versões da interface."
+    },
+    {
+      "category": "Interfaces legíveis por máquina",
+      "id": "agent-surface",
+      "label": "Superfície de automação explícita",
+      "pass": true,
+      "evidence": "CLI declarada: {\"axis\":\"./dist/cli.js\"}",
+      "action": "Ofereça API/CLI/MCP estável, descoberta simples e saída estruturada."
+    },
+    {
+      "category": "Interfaces legíveis por máquina",
+      "id": "examples",
+      "label": "Exemplos, cenários ou fixtures executáveis",
+      "pass": true,
+      "evidence": "Busca por examples/fixtures/scenarios/samples",
+      "action": "Inclua um caminho feliz mínimo e casos de erro reproduzíveis."
+    },
+    {
+      "category": "Interfaces legíveis por máquina",
+      "id": "versioning",
+      "label": "Versão e mudanças comunicadas",
+      "pass": true,
+      "evidence": "Versão declarada: 1.17.5",
+      "action": "Use versionamento previsível e changelog orientado a impacto."
+    },
+    {
+      "category": "Segurança e recuperação",
+      "id": "secret-hygiene",
+      "label": "Arquivos de segredo ignorados",
+      "pass": true,
+      "evidence": "Regras verificadas no .gitignore",
+      "action": "Ignore segredos e declare credenciais somente por nome/escopo."
+    },
+    {
+      "category": "Segurança e recuperação",
+      "id": "isolation",
+      "label": "Sandbox, fixtures ou isolamento documentado",
+      "pass": true,
+      "evidence": "Busca por ambiente isolado, fixtures e cenários",
+      "action": "Faça avaliações mutáveis apenas em sandbox e com dados descartáveis."
+    },
+    {
+      "category": "Segurança e recuperação",
+      "id": "limits",
+      "label": "Limites, timeout ou orçamento explícitos",
+      "pass": true,
+      "evidence": "Busca por limites operacionais documentados",
+      "action": "Defina timeout, orçamento, escopo de ação e política de retry."
+    },
+    {
+      "category": "Segurança e recuperação",
+      "id": "recovery",
+      "label": "Falhas e recuperação orientadas por evidência",
+      "pass": true,
+      "evidence": "Busca por rollback/retry/cleanup/falhas",
+      "action": "Forneça erros acionáveis, operações idempotentes e caminho de rollback/cleanup."
+    }
+  ],
+  "caveat": "Heurística de prontidão estrutural; não mede sucesso de tarefa, qualidade de decisão do agente, latência real nem segurança em produção."
+}

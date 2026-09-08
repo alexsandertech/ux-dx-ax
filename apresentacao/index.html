@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>AX × UX × DX — projetando software para pessoas, desenvolvedores e agentes</title>
+    <style>
+      :root {
+        --ink: #f7f8fc;
+        --muted: #abb3c8;
+        --bg: #070a12;
+        --panel: #101624;
+        --line: rgba(255, 255, 255, 0.12);
+        --ux: #ffb84d;
+        --dx: #53d4ff;
+        --ax: #b8ff65;
+        --risk: #ff6f91;
+        --max: 1180px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        letter-spacing: -0.012em;
+      }
+      a { color: inherit; text-decoration-color: rgba(255,255,255,.35); text-underline-offset: 3px; }
+      code, pre { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+      button { font: inherit; }
+
+      .deck { width: 100%; height: 100%; position: relative; }
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+        padding: clamp(42px, 6vh, 76px) clamp(50px, 7vw, 108px) clamp(54px, 7vh, 86px);
+        background:
+          radial-gradient(circle at 87% 12%, rgba(83, 212, 255, .09), transparent 25%),
+          radial-gradient(circle at 12% 88%, rgba(184, 255, 101, .06), transparent 29%),
+          linear-gradient(145deg, #080b13 0%, #0a0e18 60%, #080b12 100%);
+      }
+      .slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .25;
+        background-image:
+          linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(to bottom, #000, transparent 92%);
+      }
+      .slide.active { display: flex; flex-direction: column; animation: enter .35s ease-out; }
+      @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+      .content { width: min(100%, var(--max)); margin: auto; position: relative; z-index: 1; }
+      .content.top { margin-top: 0; }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        color: var(--ax);
+        font-size: 14px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .15em;
+      }
+      .eyebrow::before { content: ""; width: 28px; height: 2px; background: currentColor; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { font-size: clamp(58px, 8vw, 116px); line-height: .92; letter-spacing: -.065em; margin-bottom: 28px; }
+      h2 { font-size: clamp(40px, 5.3vw, 72px); line-height: 1; letter-spacing: -.05em; margin-bottom: 30px; max-width: 1000px; }
+      h3 { font-size: clamp(20px, 2.2vw, 30px); line-height: 1.15; margin-bottom: 12px; }
+      p, li { font-size: clamp(18px, 1.75vw, 27px); line-height: 1.42; }
+      .lede { max-width: 950px; color: #d6daE6; font-size: clamp(23px, 2.5vw, 36px); line-height: 1.32; }
+      .muted { color: var(--muted); }
+      .small { font-size: clamp(14px, 1.15vw, 18px); color: var(--muted); }
+      .tiny { font-size: 12px; color: #8790a6; }
+      .accent { color: var(--ax); }
+      .ux { color: var(--ux); }
+      .dx { color: var(--dx); }
+      .ax { color: var(--ax); }
+      .risk { color: var(--risk); }
+      .mono { font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: -.03em; }
+      .marker { background: linear-gradient(transparent 63%, rgba(184,255,101,.2) 63%); }
+      .big-number { font-size: clamp(80px, 13vw, 180px); font-weight: 850; line-height: .8; letter-spacing: -.08em; }
+
+      .grid { display: grid; gap: 18px; }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(16, 22, 36, .78);
+        padding: clamp(18px, 2.2vw, 30px);
+        min-width: 0;
+        box-shadow: 0 16px 50px rgba(0,0,0,.17);
+      }
+      .card p, .card li { font-size: clamp(15px, 1.35vw, 20px); }
+      .card p:last-child { margin-bottom: 0; }
+      .card .tag { margin-bottom: 20px; }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .quote {
+        max-width: 1050px;
+        font-size: clamp(30px, 4vw, 58px);
+        line-height: 1.12;
+        letter-spacing: -.045em;
+        font-weight: 690;
+      }
+      .quote::before { content: "“"; color: var(--ax); margin-right: 8px; }
+      .quote::after { content: "”"; color: var(--ax); }
+      ul.clean { list-style: none; padding: 0; margin: 0; }
+      ul.clean li { position: relative; padding-left: 27px; margin: 12px 0; }
+      ul.clean li::before { content: "→"; position: absolute; left: 0; color: var(--ax); }
+      .split { display: grid; grid-template-columns: 1.2fr .8fr; gap: clamp(28px, 5vw, 80px); align-items: center; }
+
+      .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+      .pillar { border-top: 4px solid currentColor; }
+      .pillar .letter { font-size: clamp(52px, 7vw, 92px); font-weight: 850; line-height: 1; letter-spacing: -.08em; }
+
+      .flow { display: grid; grid-template-columns: repeat(7, 1fr); align-items: stretch; gap: 8px; margin: 38px 0; }
+      .flow-step {
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 18px 14px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,.035);
+        border-radius: 14px;
+      }
+      .flow-step b { font-size: clamp(14px, 1.4vw, 20px); }
+      .flow-step span { color: var(--muted); font-size: 13px; }
+      .flow-step:nth-child(6), .flow-step:nth-child(7) { border-color: rgba(184,255,101,.5); }
+
+      .stack { display: grid; gap: 12px; max-width: 980px; }
+      .stack-row {
+        display: grid;
+        grid-template-columns: 190px 1fr 120px;
+        align-items: center;
+        gap: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,.03);
+        padding: 16px 20px;
+        border-radius: 14px;
+      }
+      .stack-row b { font-size: 18px; }
+      .stack-row span { color: var(--muted); font-size: 16px; }
+      .stack-row em { color: var(--ax); font-style: normal; font-weight: 700; text-align: right; }
+
+      .formula { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; margin-top: 28px; }
+      .metric { padding: 24px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); }
+      .metric strong { display: block; font-size: clamp(35px, 4.5vw, 64px); letter-spacing: -.055em; line-height: 1; margin-bottom: 10px; }
+      .metric span { color: var(--muted); font-size: 15px; }
+      .metric.primary { background: linear-gradient(145deg, rgba(184,255,101,.16), rgba(16,22,36,.88)); border-color: rgba(184,255,101,.4); }
+
+      pre {
+        margin: 0;
+        padding: 22px 24px;
+        border-radius: 18px;
+        background: #05070d;
+        border: 1px solid rgba(255,255,255,.13);
+        color: #dfe5f2;
+        font-size: clamp(12px, 1.15vw, 17px);
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .code-key { color: var(--dx); }
+      .code-str { color: #ffd58a; }
+      .terminal::before { content: "●  ●  ●"; display: block; color: #697287; letter-spacing: 5px; margin-bottom: 14px; }
+
+      .score-wrap { display: grid; grid-template-columns: .7fr 1.3fr; gap: 44px; align-items: center; }
+      .donut {
+        width: min(32vw, 340px); aspect-ratio: 1; border-radius: 50%;
+        background: conic-gradient(var(--ax) 0 88%, rgba(255,255,255,.11) 88% 100%);
+        display: grid; place-items: center; margin: auto; position: relative;
+      }
+      .donut::after { content: ""; position: absolute; inset: 25px; border-radius: 50%; background: #0b0f19; }
+      .donut > div { position: relative; z-index: 1; text-align: center; }
+      .donut strong { display: block; font-size: 78px; line-height: 1; letter-spacing: -.07em; }
+      .donut span { color: var(--muted); font-size: 15px; }
+
+      .bars { display: grid; gap: 16px; }
+      .bar-row { display: grid; grid-template-columns: 220px 1fr 60px; gap: 14px; align-items: center; }
+      .bar-row span { font-size: 16px; color: #d6dbea; }
+      .bar-track { height: 12px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
+      .bar-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--dx), var(--ax)); }
+      .bar-row b { text-align: right; font-size: 16px; }
+
+      .gates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .gate { padding: 24px; border-radius: 20px; border: 1px solid var(--line); position: relative; overflow: hidden; }
+      .gate::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: currentColor; }
+      .gate h3 { padding-left: 4px; }
+
+      .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 34px; }
+      .roadmap > div { min-height: 260px; border-radius: 18px; border: 1px solid var(--line); padding: 24px 20px; background: rgba(255,255,255,.025); }
+      .roadmap .day { font-size: 13px; color: var(--ax); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+      .roadmap h3 { margin-top: 16px; }
+      .roadmap p { font-size: 16px; color: var(--muted); }
+
+      .source {
+        position: absolute;
+        left: clamp(50px, 7vw, 108px);
+        bottom: 24px;
+        z-index: 2;
+        max-width: calc(100% - 220px);
+        color: #788198;
+        font-size: 11px;
+        letter-spacing: 0;
+      }
+      .source a { text-decoration: none; }
+      .slide-no { position: absolute; right: 28px; bottom: 21px; z-index: 4; color: #657088; font: 12px/1 monospace; }
+      .brand { position: absolute; left: 28px; top: 22px; z-index: 4; color: #657088; font: 700 11px/1 system-ui; letter-spacing: .12em; }
+      .controls {
+        position: fixed; right: 20px; top: 18px; z-index: 20; display: flex; gap: 7px;
+        opacity: .18; transition: opacity .2s;
+      }
+      .controls:hover { opacity: 1; }
+      .controls button { width: 34px; height: 34px; color: var(--ink); border: 1px solid var(--line); background: rgba(7,10,18,.8); border-radius: 50%; cursor: pointer; }
+      .progress { position: fixed; left: 0; bottom: 0; height: 4px; z-index: 30; background: linear-gradient(90deg, var(--dx), var(--ax)); transition: width .25s; }
+      .notes-panel {
+        display: none; position: fixed; z-index: 40; right: 20px; bottom: 22px; width: min(460px, calc(100vw - 40px));
+        max-height: 45vh; overflow: auto; padding: 18px 20px; border-radius: 16px; background: rgba(5,7,13,.96); border: 1px solid var(--line); box-shadow: 0 20px 60px #000;
+      }
+      .notes-panel.open { display: block; }
+      .notes-panel p { font-size: 15px; line-height: 1.45; color: #d7dbea; margin: 0; }
+      .speaker-notes { display: none; }
+
+      .cover .content { margin-left: 0; }
+      .cover h1 span { display: block; }
+      .cover h1 .thin { font-weight: 300; color: #c6ccda; }
+      .cover .orb {
+        position: absolute; right: -10vw; top: 10vh; width: 52vw; aspect-ratio: 1; border-radius: 50%;
+        background: conic-gradient(from 190deg, var(--ax), var(--dx), #7c5cff, var(--ux), var(--ax));
+        filter: blur(1px); opacity: .18;
+      }
+      .cover .orb::after { content: ""; position: absolute; inset: 8%; border-radius: 50%; background: var(--bg); }
+      .cover-meta { display: flex; gap: 24px; color: var(--muted); font-size: 15px; margin-top: 30px; }
+
+      .reference-list { columns: 2; column-gap: 36px; padding: 0; margin: 0; list-style-position: inside; }
+      .reference-list li { break-inside: avoid; margin: 0 0 13px; color: #c7cddd; font-size: 14px; line-height: 1.35; }
+
+      @media (max-width: 880px) {
+        .grid-4, .grid-3, .pillars, .gates, .roadmap { grid-template-columns: repeat(2, 1fr); }
+        .flow { grid-template-columns: repeat(4, 1fr); }
+        .formula { grid-template-columns: repeat(2, 1fr); }
+        .slide { overflow-y: auto; }
+      }
+      @media (max-width: 620px) {
+        .grid-2, .grid-3, .grid-4, .pillars, .gates, .roadmap, .split, .score-wrap { grid-template-columns: 1fr; }
+        .flow { grid-template-columns: repeat(2, 1fr); }
+        .slide { padding: 64px 25px 70px; }
+        .source { left: 25px; }
+      }
+
+      @media print {
+        @page { size: 13.333in 7.5in; margin: 0; }
+        html, body { width: auto; height: auto; overflow: visible; background: #070a12; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        .deck { height: auto; }
+        .slide, .slide.active {
+          display: flex !important; position: relative; width: 13.333in; height: 7.5in; page-break-after: always; break-after: page; overflow: hidden;
+          padding: .55in .72in .65in; animation: none;
+        }
+        .slide:last-child { page-break-after: auto; break-after: auto; }
+        .controls, .progress, .notes-panel { display: none !important; }
+        .source { left: .72in; bottom: .19in; }
+        .slide-no { right: .25in; bottom: .18in; }
+        h1 { font-size: 76px; } h2 { font-size: 46px; } p, li { font-size: 19px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" aria-live="polite">
+      <section class="slide cover active" data-title="Capa">
+        <div class="orb"></div>
+        <div class="content">
+          <div class="eyebrow">Engenharia de experiência · 2026</div>
+          <h1><span class="thin">AX × UX × DX</span><span>software para quem age</span></h1>
+          <p class="lede">Como projetar, avaliar e melhorar a experiência de pessoas, desenvolvedores e agentes de IA — com evidência, não intuição.</p>
+          <div class="cover-meta"><span>35–45 min</span><span>demo open source</span><span>checklist + laboratório</span></div>
+        </div>
+        <aside class="speaker-notes">Abra perguntando: “Se um novo dev não encontra o comando de teste, chamamos de DX ruim. E quando um agente não encontra?” Explique que haverá conceito, método e demonstração reproduzível.</aside>
+      </section>
+
+      <section class="slide" data-title="Tese">
+        <div class="content">
+          <div class="eyebrow">A tese em uma frase</div>
+          <p class="quote">Agentes não precisam de uma interface bonita. Precisam de um caminho <span class="marker">descobrível, acionável, verificável e seguro</span> até o objetivo.</p>
+          <div class="grid grid-3" style="margin-top:46px">
+            <div class="card"><span class="tag ux">UX</span><p>Pessoa percebe, decide e sente a interação.</p></div>
+            <div class="card"><span class="tag dx">DX</span><p>Desenvolvedor constrói e opera dentro de um sistema sociotécnico.</p></div>
+            <div class="card"><span class="tag ax">AX</span><p>Agente interpreta contexto, escolhe ferramentas e altera estado em nome de alguém.</p></div>
+          </div>
+        </div>
+        <div class="source">Definições-base: <a href="https://www.iso.org/standard/77520.html">ISO 9241-210</a> · <a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">SPACE</a> · <a href="https://agentexperience.ax/">AgentExperience.ax</a></div>
+        <aside class="speaker-notes">Não trate AX como substituição de UX/DX. É um novo ator com necessidades próprias e grande sobreposição com boa engenharia.</aside>
+      </section>
+
+      <section class="slide" data-title="Vocabulário">
+        <div class="content top">
+          <div class="eyebrow">Alinhar o vocabulário</div>
+          <h2>Experiência é relação — não atributo isolado</h2>
+          <div class="pillars">
+            <div class="card pillar ux"><div class="letter">UX</div><h3>User Experience</h3><p><b>Ator:</b> pessoa</p><p><b>Contexto:</b> uso</p><p><b>Sinais:</b> efetividade, eficiência, satisfação, acessibilidade.</p></div>
+            <div class="card pillar dx"><div class="letter">DX</div><h3>Developer Experience</h3><p><b>Ator:</b> dev/equipe</p><p><b>Contexto:</b> entrega</p><p><b>Sinais:</b> fluxo, feedback, colaboração, qualidade e bem-estar.</p></div>
+            <div class="card pillar ax"><div class="letter">AX</div><h3>Agent Experience</h3><p><b>Ator:</b> agente</p><p><b>Contexto:</b> objetivo delegado</p><p><b>Sinais:</b> descoberta, ação, feedback, verificação, recuperação e controle.</p></div>
+          </div>
+          <p class="small" style="margin-top:20px"><b>Ressalva:</b> AX, neste deck, significa <i>Agent Experience</i>. É disciplina emergente — não norma consolidada.</p>
+        </div>
+        <div class="source"><a href="https://www.iso.org/standard/63500.html">ISO 9241-11</a> · <a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">Forsgren et al., SPACE (2021)</a> · <a href="https://www.netlify.com/agent-experience/">Netlify: Agent Experience</a></div>
+        <aside class="speaker-notes">A diferença-chave está no ator e no contexto. Não force equivalência entre satisfação humana e telemetria de um agente.</aside>
+      </section>
+
+      <section class="slide" data-title="Sistema compartilhado">
+        <div class="content">
+          <div class="eyebrow">Três consumidores, um sistema</div>
+          <h2>O mesmo detalhe técnico atravessa UX, DX e AX</h2>
+          <div class="grid grid-2">
+            <div class="card"><h3>Erro “500” sem causa</h3><p><span class="ux">UX</span> perde confiança · <span class="dx">DX</span> perde tempo · <span class="ax">AX</span> não sabe se deve corrigir, repetir ou parar.</p></div>
+            <div class="card"><h3>Contrato ambíguo</h3><p><span class="ux">UX</span> vê inconsistência · <span class="dx">DX</span> cria workaround · <span class="ax">AX</span> escolhe parâmetros plausíveis e errados.</p></div>
+            <div class="card"><h3>Feedback lento</h3><p><span class="ux">UX</span> abandona · <span class="dx">DX</span> perde fluxo · <span class="ax">AX</span> consome orçamento explorando.</p></div>
+            <div class="card"><h3>Ação irreversível</h3><p><span class="ux">UX</span> sofre o dano · <span class="dx">DX</span> responde ao incidente · <span class="ax">AX</span> amplifica o impacto.</p></div>
+          </div>
+          <p class="lede" style="margin-top:28px">Boa DX é a <b>infraestrutura invisível</b> da AX — mas não cobre delegação, autonomia e risco de ação.</p>
+        </div>
+        <aside class="speaker-notes">Peça exemplos reais da equipe. O objetivo é mostrar que melhorias como erro acionável, teste rápido e idempotência servem aos três públicos.</aside>
+      </section>
+
+      <section class="slide" data-title="Mudança de risco">
+        <div class="content">
+          <div class="eyebrow">Da conversa à execução</div>
+          <div class="split">
+            <div>
+              <h2>Quando o modelo ganha ferramentas, plausibilidade deixa de ser suficiente</h2>
+              <ul class="clean">
+                <li>lê código, documentação e dados</li>
+                <li>executa shell e pipelines</li>
+                <li>chama APIs e serviços</li>
+                <li>cria, altera e remove estado</li>
+              </ul>
+            </div>
+            <div class="card" style="border-color:rgba(255,111,145,.45)">
+              <span class="tag risk">mudança de contrato</span>
+              <p class="quote" style="font-size:clamp(26px,3vw,42px)">A resposta não é o resultado. O <span class="risk">estado final</span> é.</p>
+              <p class="small">Por isso precisamos de oráculo independente, privilégio mínimo, sandbox e trilha auditável.</p>
+            </div>
+          </div>
+        </div>
+        <div class="source"><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF</a> · <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Top 10 for Agentic Applications 2026</a></div>
+        <aside class="speaker-notes">Um agente dizer “feito” é apenas autorrelato. O sistema precisa confirmar o estado por teste, consulta ou artefato.</aside>
+      </section>
+
+      <section class="slide" data-title="Loop AX">
+        <div class="content top">
+          <div class="eyebrow">Modelo mental</div>
+          <h2>AX é a qualidade do loop completo</h2>
+          <div class="flow">
+            <div class="flow-step"><b>1. Descobrir</b><span>onde começar?</span></div>
+            <div class="flow-step"><b>2. Compreender</b><span>qual é o contrato?</span></div>
+            <div class="flow-step"><b>3. Planejar</b><span>qual menor ação?</span></div>
+            <div class="flow-step"><b>4. Agir</b><span>ferramenta certa?</span></div>
+            <div class="flow-step"><b>5. Observar</b><span>o que mudou?</span></div>
+            <div class="flow-step"><b>6. Verificar</b><span>o objetivo foi atingido?</span></div>
+            <div class="flow-step"><b>7. Recuperar</b><span>retry, rollback ou stop?</span></div>
+          </div>
+          <div class="grid grid-3">
+            <div class="card"><h3>Affordance</h3><p>README, AGENTS.md, schemas, tool descriptions.</p></div>
+            <div class="card"><h3>Feedback</h3><p>erros acionáveis, logs, estado consultável, testes rápidos.</p></div>
+            <div class="card"><h3>Controle</h3><p>escopo, limite, idempotência, aprovação e reversibilidade.</p></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://agents.md/">AGENTS.md</a> · <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/index">MCP Specification</a></div>
+        <aside class="speaker-notes">Use o loop como roteiro de diagnóstico. Se o agente falha, localize a etapa em vez de culpar genericamente o modelo.</aside>
+      </section>
+
+      <section class="slide" data-title="Qualidade AX">
+        <div class="content top">
+          <div class="eyebrow">Rubrica de qualidade</div>
+          <h2>Oito dimensões avaliáveis</h2>
+          <div class="grid grid-4">
+            <div class="card"><span class="tag ax">01</span><h3>Objetivo</h3><p>tarefas reais + oráculo</p></div>
+            <div class="card"><span class="tag ax">02</span><h3>Contexto</h3><p>descoberta + intenção</p></div>
+            <div class="card"><span class="tag ax">03</span><h3>Ambiente</h3><p>setup + reprodutibilidade</p></div>
+            <div class="card"><span class="tag ax">04</span><h3>Interfaces</h3><p>schema + semântica</p></div>
+            <div class="card"><span class="tag ax">05</span><h3>Feedback</h3><p>estado + erros + recovery</p></div>
+            <div class="card"><span class="tag ax">06</span><h3>Segurança</h3><p>privilégio + controle</p></div>
+            <div class="card"><span class="tag ax">07</span><h3>Eficiência</h3><p>tempo + chamadas + tokens</p></div>
+            <div class="card"><span class="tag ax">08</span><h3>Governança</h3><p>versão + baseline + owner</p></div>
+          </div>
+          <p class="small" style="margin-top:20px">Checklist completo entregue em <code>checklist/checklist-ax.md</code>.</p>
+        </div>
+        <aside class="speaker-notes">Explique que dimensões são avaliadas separadamente. Uma média alta não compensa vazamento de segredo ou falta de oráculo.</aside>
+      </section>
+
+      <section class="slide" data-title="Anti-métricas">
+        <div class="content">
+          <div class="eyebrow">Cuidado com proxies</div>
+          <h2>Movimento não é progresso</h2>
+          <div class="grid grid-2">
+            <div class="card"><h3 class="risk">Não use sozinho</h3><ul class="clean"><li>linhas alteradas</li><li>número de tool calls</li><li>tokens consumidos</li><li>tempo total</li><li>autorrelato “concluído”</li><li>uma única execução feliz</li></ul></div>
+            <div class="card"><h3 class="ax">Combine evidências</h3><ul class="clean"><li>estado final verificado</li><li>qualidade da trajetória</li><li>latência e custo por sucesso</li><li>segurança e intervenção humana</li><li>repetições + dispersão</li><li>revisão humana calibrada</li></ul></div>
+          </div>
+          <p class="lede" style="margin-top:28px">Medir só resultado esconde fragilidade. Medir só trajetória recompensa atividade.</p>
+        </div>
+        <div class="source"><a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">SPACE: produtividade não cabe em uma métrica</a></div>
+        <aside class="speaker-notes">Faça analogia com avaliar dev por linhas de código. AX precisa de portfólio de medidas e contexto.</aside>
+      </section>
+
+      <section class="slide" data-title="Pirâmide">
+        <div class="content">
+          <div class="eyebrow">Estratégia de avaliação</div>
+          <h2>Três níveis de evidência</h2>
+          <div class="stack">
+            <div class="stack-row" style="border-color:rgba(255,111,145,.5)"><b>3 · Produção</b><span>tarefas reais, incidentes, custo, impacto e controle humano</span><em>realista</em></div>
+            <div class="stack-row" style="border-color:rgba(83,212,255,.5)"><b>2 · Cenários</b><span>objetivo + sandbox + agente + transcript + rubrica + oráculo</span><em>causal</em></div>
+            <div class="stack-row" style="border-color:rgba(184,255,101,.5)"><b>1 · Pré-flight</b><span>docs, comandos, schemas, testes, CI, segurança e recovery</span><em>barato</em></div>
+          </div>
+          <div class="grid grid-3" style="margin-top:30px">
+            <p class="small"><b>Pré-flight</b> encontra lacunas antes de gastar tokens.</p>
+            <p class="small"><b>Cenário</b> testa uma hipótese sob condições controladas.</p>
+            <p class="small"><b>Produção</b> revela a distribuição e os riscos que o laboratório não cobre.</p>
+          </div>
+        </div>
+        <aside class="speaker-notes">Nenhum nível substitui o outro. O kit entrega nível 1 completo e nível 2 pronto para executar.</aside>
+      </section>
+
+      <section class="slide" data-title="Método">
+        <div class="content top">
+          <div class="eyebrow">Experimento mínimo confiável</div>
+          <h2>Controle a comparação antes de discutir o modelo</h2>
+          <div class="grid grid-3">
+            <div class="card"><span class="tag dx">desenho</span><h3>1. Fixe</h3><p>tarefa, estado inicial, versões, orçamento, ferramentas e critério de sucesso.</p></div>
+            <div class="card"><span class="tag dx">execução</span><h3>2. Repita</h3><p>3–5+ vezes, ordem alternada, sandbox limpo e captura integral da trajetória.</p></div>
+            <div class="card"><span class="tag dx">análise</span><h3>3. Triangule</h3><p>oráculo determinístico, juiz calibrado e revisão humana de amostra.</p></div>
+          </div>
+          <div class="card" style="margin-top:24px">
+            <h3>Reporte a distribuição</h3>
+            <p><span class="ax">taxa de sucesso</span> · mediana e dispersão de duração/tokens · intervenções · retries · regressões · falhas de segurança</p>
+          </div>
+          <p class="small" style="margin-top:18px">Uma demo ao vivo é ilustração. Um benchmark começa quando o protocolo é versionado e repetível.</p>
+        </div>
+        <div class="source"><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF: Govern, Map, Measure, Manage</a> · <a href="https://axis.run/quickstart/">AXIS: reports & baselines</a></div>
+        <aside class="speaker-notes">Antecipe objeção: agentes variam. Isso não torna avaliação inútil; exige protocolo e estatística básica.</aside>
+      </section>
+
+      <section class="slide" data-title="Projeto open source">
+        <div class="content">
+          <div class="eyebrow">Projeto escolhido</div>
+          <div class="split">
+            <div>
+              <h2>AXIS</h2>
+              <p class="lede">“Lighthouse para Agent Experience”: executa cenários, captura transcripts e produz um resultado composto.</p>
+              <p class="small">Criado pela Netlify · licença MIT · clone fixado no commit <code>71fb758</code> · versão clonada <code>1.17.5</code>.</p>
+            </div>
+            <div class="card">
+              <h3>Por que este?</h3>
+              <ul class="clean">
+                <li>código, rubrica e roadmap abertos</li>
+                <li>adapters para múltiplos agentes</li>
+                <li>isolamento por workspace</li>
+                <li>artefatos + transcript</li>
+                <li>baseline e regressão em CI</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="source"><a href="https://github.com/netlify/axis">github.com/netlify/axis</a> · <a href="https://axis.run/">axis.run</a> · dados do clone local em <code>opensource/axis.commit.txt</code></div>
+        <aside class="speaker-notes">Deixe claro: é uma implementação recente, não padrão universal. A abertura do código permite auditar premissas e adaptar pesos.</aside>
+      </section>
+
+      <section class="slide" data-title="Scoring AXIS">
+        <div class="content top">
+          <div class="eyebrow">Como o AXIS decompõe o resultado</div>
+          <h2>Separar “funcionou?” de “deveria ter feito?”</h2>
+          <div class="formula">
+            <div class="metric primary"><strong>40%</strong><h3>Goal achievement</h3><span>O resultado atende aos checks ponderados da rubrica?</span></div>
+            <div class="metric"><strong>20%</strong><h3>Environment</h3><span>Shell, arquivos, Git, build: sucesso + velocidade.</span></div>
+            <div class="metric"><strong>20%</strong><h3>Service</h3><span>API, MCP e rede: sucesso + velocidade.</span></div>
+            <div class="metric"><strong>20%</strong><h3>Agent</h3><span>Necessidade, relevância, peso e qualidade da decisão.</span></div>
+          </div>
+          <p class="small" style="margin-top:24px"><code>Result = goal × .4 + environment × .2 + service × .2 + agent × .2</code> · pesos configuráveis.</p>
+        </div>
+        <div class="source"><a href="https://axis.run/scoring/">AXIS Scoring Framework</a> — fórmula, sinais e thresholds oficiais.</div>
+        <aside class="speaker-notes">Exemplo: npm install pode funcionar rápido (ambiente alto), mas ser totalmente desnecessário (agente baixo). Essa separação torna o diagnóstico acionável.</aside>
+      </section>
+
+      <section class="slide" data-title="Hipótese da demo">
+        <div class="content">
+          <div class="eyebrow">Demonstração controlada</div>
+          <h2>Mesmo bug. Mesmo teste. Contexto diferente.</h2>
+          <div class="grid grid-2">
+            <div class="card" style="border-color:rgba(255,111,145,.4)"><span class="tag risk">before</span><h3>Repo funcional, pouco orientador</h3><p>Código e testes existem, mas o comando é legado; não há README, contrato nem instruções para agente.</p></div>
+            <div class="card" style="border-color:rgba(184,255,101,.4)"><span class="tag ax">after</span><h3>Mesmo sistema, affordances explícitas</h3><p>Adiciona README, <code>AGENTS.md</code>, comandos canônicos, domínio de entradas e critério de verificação.</p></div>
+          </div>
+          <p class="lede" style="margin-top:32px"><b>Hipótese:</b> o contexto explícito reduz exploração e aumenta a verificação correta. <span class="muted">Não presuma — repita e meça.</span></p>
+        </div>
+        <aside class="speaker-notes">Compare arquivos no terminal. Não diga que AGENTS.md garante melhoria; diga que é a variável do experimento.</aside>
+      </section>
+
+      <section class="slide" data-title="Cenário como código">
+        <div class="content top">
+          <div class="eyebrow">Cenário como código</div>
+          <h2>Prompt + estado + rubrica + artefatos</h2>
+          <div class="grid grid-2">
+            <pre><span class="code-key">"prompt"</span>: <span class="code-str">"Resolva a issue #42: pricing
+produz valores fracionários ou negativos..."</span>,
+
+<span class="code-key">"setup"</span>: [{
+  <span class="code-key">"action"</span>: <span class="code-str">"run_script"</span>,
+  <span class="code-key">"command"</span>: <span class="code-str">"cp -R ... ."</span>
+}],
+
+<span class="code-key">"artifacts"</span>: [<span class="code-str">"src/pricing.js"</span>]</pre>
+            <pre><span class="code-key">"judge"</span>: [
+  { <span class="code-key">"check"</span>: <span class="code-str">"retorna inteiro
+    e arredonda corretamente"</span>,
+    <span class="code-key">"weight"</span>: 0.25 },
+  { <span class="code-key">"check"</span>: <span class="code-str">"rejeita entradas
+    fora do domínio"</span>,
+    <span class="code-key">"weight"</span>: 0.25 },
+  { <span class="code-key">"check"</span>: <span class="code-str">"testes passaram
+    sem serem alterados"</span>,
+    <span class="code-key">"weight"</span>: 0.40 }
+]</pre>
+          </div>
+          <p class="small" style="margin-top:18px">Arquivos completos: <code>demo/scenarios/01-before.json</code> e <code>02-after.json</code>.</p>
+        </div>
+        <div class="source"><a href="https://axis.run/scenarios/">AXIS: Writing Scenarios</a></div>
+        <aside class="speaker-notes">Rubrica forte descreve estado observável. Evite checks subjetivos como “resposta excelente”.</aside>
+      </section>
+
+      <section class="slide" data-title="Executar demo">
+        <div class="content">
+          <div class="eyebrow">Demo em quatro comandos</div>
+          <h2>Clone validado → configuração → execução → evidência</h2>
+          <pre class="terminal">cd opensource/axis
+npm ci && npm run build && npm test && npm run typecheck
+
+cd ../../demo
+node validate-lab.mjs
+node ../opensource/axis/dist/cli.js run --scenario 02-after
+node ../opensource/axis/dist/cli.js reports latest --html</pre>
+          <div class="grid grid-3" style="margin-top:22px">
+            <p class="small"><b>Autenticação:</b> <code>codex login</code> ou <code>CODEX_API_KEY</code>.</p>
+            <p class="small"><b>Isolamento:</b> workspace temporário por execução.</p>
+            <p class="small"><b>Plano B:</b> pré-flight e relatório salvo; nunca dependa da rede ao vivo.</p>
+          </div>
+        </div>
+        <div class="source"><a href="https://axis.run/quickstart/">AXIS Quick Start</a> · roteiro completo em <code>demo/README.md</code></div>
+        <aside class="speaker-notes">Antes da apresentação, faça build e salve o HTML da execução. Se o agente falhar ao vivo, transforme isso em dado de ambiente.</aside>
+      </section>
+
+      <section class="slide" data-title="Resultado da demo">
+        <div class="content top">
+          <div class="eyebrow">Execuções reais · N = 1 por condição</div>
+          <h2>O contexto mudou mais a trajetória que o resultado</h2>
+          <div class="grid grid-2">
+            <div class="card" style="border-color:rgba(255,111,145,.4)">
+              <span class="tag risk">before · 98/100</span>
+              <div class="bars" style="margin-top:18px">
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Ambiente</span><div class="bar-track"><div class="bar-fill" style="width:93%"></div></div><b>93</b></div>
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Agente</span><div class="bar-track"><div class="bar-fill" style="width:95%"></div></div><b>95</b></div>
+              </div>
+              <p class="small" style="margin-top:20px"><b>115,7 s</b> · 12 interações · 128.573 input tokens reportados</p>
+            </div>
+            <div class="card" style="border-color:rgba(184,255,101,.4)">
+              <span class="tag ax">after · 99/100</span>
+              <div class="bars" style="margin-top:18px">
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Objetivo</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Ambiente</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row" style="grid-template-columns:125px 1fr 45px"><span>Agente</span><div class="bar-track"><div class="bar-fill" style="width:96%"></div></div><b>96</b></div>
+              </div>
+              <p class="small" style="margin-top:20px"><b>56,5 s</b> · 9 interações · 68.819 input tokens reportados</p>
+            </div>
+          </div>
+          <div class="card" style="margin-top:22px"><p><span class="ax"><b>Observado:</b></span> after levou 51,2% menos tempo, 25% menos interações e 46,5% menos input tokens reportados. <span class="muted">Com N=1, isso gera uma hipótese — não uma conclusão.</span></p></div>
+        </div>
+        <div class="source">Resumos sanitizados: <code>demo/evidencias/resultado-*.json</code> · análise: <code>relatorios/comparacao-execucoes.md</code></div>
+        <aside class="speaker-notes">Ambos tiveram Goal 100. O ganho aparente ficou em eficiência. Mostre que score composto quase escondeu a diferença de tempo/tokens; por isso precisamos de várias medidas. Não generalize N=1.</aside>
+      </section>
+
+      <section class="slide" data-title="Pré-flight real">
+        <div class="content top">
+          <div class="eyebrow">Evidência já gerada no clone</div>
+          <h2>Pré-flight estrutural do AXIS</h2>
+          <div class="score-wrap">
+            <div class="donut"><div><strong>88</strong><span>/100 · Bom</span></div></div>
+            <div>
+              <div class="bars">
+                <div class="bar-row"><span>Contexto e descoberta</span><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><b>75</b></div>
+                <div class="bar-row"><span>Ambiente reproduzível</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row"><span>Verificação e feedback</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row"><span>Automação e governança</span><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div><b>50</b></div>
+                <div class="bar-row"><span>Interfaces legíveis</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+                <div class="bar-row"><span>Segurança e recuperação</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><b>100</b></div>
+              </div>
+              <p class="small" style="margin-top:24px"><b>Lacunas detectadas:</b> guia de contribuição, arquivo SECURITY.md e ownership explícito. O scanner é heurístico; não é resultado AXIS.</p>
+            </div>
+          </div>
+        </div>
+        <div class="source">Executado localmente em 07/09/2026 · <code>node tools/ax-preflight.mjs opensource/axis</code> · relatório: <code>relatorios/axis-preflight.md</code></div>
+        <aside class="speaker-notes">Mostre o relatório Markdown. Explique falsos positivos/negativos e por que transparência das regras importa.</aside>
+      </section>
+
+      <section class="slide" data-title="O que a nota não diz">
+        <div class="content">
+          <div class="eyebrow">Limite explícito</div>
+          <h2>88/100 ainda não responde se um agente conclui uma tarefa</h2>
+          <div class="grid grid-2">
+            <div class="card"><h3 class="ax">O pré-flight responde</h3><p>“Existem sinais estruturais para descobrir, executar e verificar o trabalho?”</p></div>
+            <div class="card"><h3 class="risk">O pré-flight não responde</h3><p>“O agente tomou boas decisões, alcançou o estado correto e recuperou de falhas reais?”</p></div>
+          </div>
+          <p class="quote" style="margin-top:40px">Prontidão é <span class="marker">pré-condição</span>. Resultado exige cenário.</p>
+        </div>
+        <aside class="speaker-notes">Este slide protege contra gamificação. Arquivos presentes não significam conteúdo correto ou atualizado.</aside>
+      </section>
+
+      <section class="slide" data-title="Gates">
+        <div class="content top">
+          <div class="eyebrow">Checklist operacional</div>
+          <h2>Três gates antes de confiar no score</h2>
+          <div class="gates">
+            <div class="gate risk"><span class="tag risk">gate 1</span><h3>Segurança</h3><p>Sem sandbox, privilégio mínimo, limites e controle de irreversíveis: <b>não execute autonomamente</b>.</p></div>
+            <div class="gate ux"><span class="tag ux">gate 2</span><h3>Verificabilidade</h3><p>Sem oráculo independente do agente: resultado <b>não conclusivo</b>.</p></div>
+            <div class="gate dx"><span class="tag dx">gate 3</span><h3>Confiabilidade</h3><p>Sem repetição, versões fixas e dispersão: comparação <b>não publicável</b>.</p></div>
+          </div>
+          <div class="card" style="margin-top:26px"><p><b>Regra de decisão:</b> um risco crítico não é compensado pela média. Avalie dimensões e gates antes do total.</p></div>
+        </div>
+        <div class="source"><a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Agentic Top 10</a> · <a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF</a></div>
+        <aside class="speaker-notes">O checklist completo tem oito dimensões e critérios binários/partial. Os três gates são a síntese para decisão.</aside>
+      </section>
+
+      <section class="slide" data-title="Ciclo de melhoria">
+        <div class="content top">
+          <div class="eyebrow">Da avaliação à engenharia</div>
+          <h2>Transforme falha em backlog observável</h2>
+          <div class="flow" style="grid-template-columns:repeat(5,1fr)">
+            <div class="flow-step"><b>1. Capture</b><span>transcript + estado + custo</span></div>
+            <div class="flow-step"><b>2. Classifique</b><span>contexto, ambiente, serviço ou decisão?</span></div>
+            <div class="flow-step"><b>3. Corrija</b><span>menor affordance que fecha o loop</span></div>
+            <div class="flow-step"><b>4. Repita</b><span>mesmo protocolo e N execuções</span></div>
+            <div class="flow-step"><b>5. Proteja</b><span>baseline + CI + owner</span></div>
+          </div>
+          <div class="grid grid-3" style="margin-top:28px">
+            <div class="card"><h3>Baixo Environment?</h3><p>setup, dependência, comando, latência.</p></div>
+            <div class="card"><h3>Baixo Service?</h3><p>schema, erro, rate limit, idempotência.</p></div>
+            <div class="card"><h3>Baixo Agent?</h3><p>descoberta, instrução, escopo, excesso de chamadas.</p></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://axis.run/scoring/">AXIS Scoring Framework</a> · <a href="https://dora.dev/research/2025/dora-report/">DORA 2025</a></div>
+        <aside class="speaker-notes">A unidade de trabalho não é “melhorar AX”; é reduzir uma falha observada, com hipótese e cenário de regressão.</aside>
+      </section>
+
+      <section class="slide" data-title="Plano 30 dias">
+        <div class="content top">
+          <div class="eyebrow">Começar pequeno</div>
+          <h2>Um fluxo crítico em 30 dias</h2>
+          <div class="roadmap">
+            <div><span class="day">dias 1–5</span><h3>Escolha</h3><p>Tarefa de 15–30 min, frequente, reversível e com oráculo forte.</p></div>
+            <div><span class="day">dias 6–12</span><h3>Instrumente</h3><p>Pré-flight, cenário, sandbox, transcript e baseline inicial.</p></div>
+            <div><span class="day">dias 13–20</span><h3>Melhore</h3><p>Corrija 1–3 gargalos de contexto, feedback ou interface.</p></div>
+            <div><span class="day">dias 21–30</span><h3>Proteja</h3><p>Repita, calibre, documente owner e automatize regressão.</p></div>
+          </div>
+          <p class="small" style="margin-top:20px">DORA: ferramentas de IA tendem a amplificar capacidades e fragilidades existentes. Comece pelo sistema de trabalho.</p>
+        </div>
+        <div class="source"><a href="https://dora.dev/research/2025/dora-report/">DORA, State of AI-assisted Software Development 2025</a></div>
+        <aside class="speaker-notes">Convide a equipe a escolher a primeira tarefa na própria reunião. Evite começar por operação crítica ou destrutiva.</aside>
+      </section>
+
+      <section class="slide" data-title="Takeaways">
+        <div class="content">
+          <div class="eyebrow">Leve isto</div>
+          <h2>AX madura quando a autonomia encontra evidência</h2>
+          <div class="grid grid-3">
+            <div class="card"><div class="big-number ax">1</div><h3>Projete o loop</h3><p>descoberta, ação, feedback, verificação e recuperação.</p></div>
+            <div class="card"><div class="big-number dx">2</div><h3>Meça camadas</h3><p>pré-flight + cenários + produção; nunca uma nota solitária.</p></div>
+            <div class="card"><div class="big-number ux">3</div><h3>Use gates</h3><p>segurança, verificabilidade e confiabilidade antes da média.</p></div>
+          </div>
+          <p class="lede" style="margin-top:34px">A pergunta não é “qual agente é melhor?”. É: <b>“qual sistema permite que agentes atinjam este objetivo com segurança e previsibilidade?”</b></p>
+        </div>
+        <aside class="speaker-notes">Feche voltando à pergunta inicial. Boa AX é propriedade do sistema agente + contexto + ferramentas + controles, não do modelo isolado.</aside>
+      </section>
+
+      <section class="slide" data-title="Fontes">
+        <div class="content top">
+          <div class="eyebrow">Fontes primárias e confiáveis</div>
+          <h2>Para aprofundar e auditar</h2>
+          <ol class="reference-list">
+            <li><a href="https://www.iso.org/standard/77520.html">ISO 9241-210:2019</a> — human-centred design.</li>
+            <li><a href="https://www.iso.org/standard/63500.html">ISO 9241-11:2018</a> — usability.</li>
+            <li><a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">Forsgren et al., SPACE</a> — ACM Queue, 2021.</li>
+            <li><a href="https://dora.dev/research/2025/dora-report/">DORA 2025</a> — AI-assisted software development.</li>
+            <li><a href="https://agentexperience.ax/">AgentExperience.ax</a> — definição comunitária.</li>
+            <li><a href="https://www.netlify.com/agent-experience/">Netlify: Agent Experience</a> — enquadramento.</li>
+            <li><a href="https://axis.run/">AXIS</a> e <a href="https://axis.run/scoring/">scoring</a> — documentação oficial.</li>
+            <li><a href="https://github.com/netlify/axis">netlify/axis</a> — código MIT usado na demo.</li>
+            <li><a href="https://agents.md/">AGENTS.md</a> — formato aberto para contexto.</li>
+            <li><a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation">Linux Foundation / AAIF</a> — governança aberta.</li>
+            <li><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/index">MCP Specification</a> — tools/resources/prompts.</li>
+            <li><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF</a> — governança e risco.</li>
+            <li><a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Agentic Top 10 2026</a> — segurança.</li>
+          </ol>
+          <p class="small" style="margin-top:20px">Bibliografia comentada, limitações e datas de consulta: <code>fontes.md</code>.</p>
+        </div>
+        <aside class="speaker-notes">Diga explicitamente quais fontes são normas/pesquisa e quais representam a definição emergente de mercado. Isso melhora a honestidade intelectual.</aside>
+      </section>
+
+      <section class="slide" data-title="Apêndice: scorecard">
+        <div class="content top">
+          <div class="eyebrow">Apêndice · scorecard de equipe</div>
+          <h2>Uma página para a retrospectiva</h2>
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>Resultados</h3>
+              <ul class="clean"><li>taxa de sucesso / N</li><li>mediana + dispersão de tempo</li><li>tokens/custo por sucesso</li><li>intervenções e retries</li><li>falhas por etapa do loop</li></ul>
+            </div>
+            <div class="card">
+              <h3>Contexto controlado</h3>
+              <ul class="clean"><li>cenário + hash</li><li>repo + commit</li><li>agente/modelo/esforço</li><li>juiz/modelo/rubrica</li><li>ambiente + ferramentas</li></ul>
+            </div>
+          </div>
+          <div class="card" style="margin-top:22px"><p><b>Decisão:</b> manter baseline · abrir melhoria · reduzir autonomia · bloquear cenário · revisar rubrica.</p></div>
+          <p class="small" style="margin-top:16px">Modelo preenchível em <code>demo/evidencias/RELATORIO-EXEMPLO.md</code>.</p>
+        </div>
+        <aside class="speaker-notes">Use apenas se houver tempo ou em perguntas. O scorecard torna a decisão rastreável.</aside>
+      </section>
+    </main>
+
+    <div class="brand">AX × UX × DX</div>
+    <div class="controls" aria-label="Controles da apresentação">
+      <button id="prev" title="Anterior (←)">←</button>
+      <button id="notes" title="Notas (N)">N</button>
+      <button id="full" title="Tela cheia (F)">⛶</button>
+      <button id="next" title="Próximo (→)">→</button>
+    </div>
+    <div class="notes-panel" id="notesPanel"><p></p></div>
+    <div class="progress" id="progress"></div>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      const progress = document.getElementById("progress");
+      const notesPanel = document.getElementById("notesPanel");
+      let index = Math.max(0, Math.min(slides.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+
+      slides.forEach((slide, i) => {
+        const number = document.createElement("span");
+        number.className = "slide-no";
+        number.textContent = `${String(i + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+        slide.append(number);
+      });
+
+      function render(pushHash = true) {
+        slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+        progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+        document.title = `${slides[index].dataset.title} — AX × UX × DX`;
+        const notes = slides[index].querySelector(".speaker-notes")?.textContent ?? "Sem notas para este slide.";
+        notesPanel.querySelector("p").textContent = notes;
+        if (pushHash) history.replaceState(null, "", `#${index + 1}`);
+      }
+      function go(delta) { index = Math.max(0, Math.min(slides.length - 1, index + delta)); render(); }
+      document.getElementById("prev").addEventListener("click", () => go(-1));
+      document.getElementById("next").addEventListener("click", () => go(1));
+      document.getElementById("notes").addEventListener("click", () => notesPanel.classList.toggle("open"));
+      document.getElementById("full").addEventListener("click", () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
+      addEventListener("keydown", (event) => {
+        if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(event.key)) { event.preventDefault(); go(1); }
+        if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) { event.preventDefault(); go(-1); }
+        if (event.key === "Home") { index = 0; render(); }
+        if (event.key === "End") { index = slides.length - 1; render(); }
+        if (event.key.toLowerCase() === "n") notesPanel.classList.toggle("open");
+        if (event.key.toLowerCase() === "f") document.getElementById("full").click();
+      });
+      let touchStart = null;
+      addEventListener("touchstart", (event) => { touchStart = event.changedTouches[0].clientX; }, { passive: true });
+      addEventListener("touchend", (event) => {
+        if (touchStart == null) return;
+        const delta = event.changedTouches[0].clientX - touchStart;
+        if (Math.abs(delta) > 55) go(delta < 0 ? 1 : -1);
+        touchStart = null;
+      }, { passive: true });
+      render(false);
+    </script>
+  </body>
+</html>

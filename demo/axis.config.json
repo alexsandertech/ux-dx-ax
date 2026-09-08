@@ -1,0 +1,22 @@
+{
+  "name": "Laboratório AX — repositório de pricing",
+  "scenarios": "./scenarios",
+  "agents": [
+    {
+      "agent": "codex",
+      "flags": {
+        "sandbox": "workspace-write"
+      }
+    }
+  ],
+  "settings": {
+    "concurrency": 1,
+    "limits": {
+      "scenario": {
+        "time_minutes": 5,
+        "tokens": 12000
+      }
+    }
+  }
+}
+

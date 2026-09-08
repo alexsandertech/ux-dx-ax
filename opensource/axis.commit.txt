@@ -1,0 +1,6 @@
+Repositório: https://github.com/netlify/axis
+Commit: 71fb75838c5873bf27f9b97e3240baa19b0b16b8
+Data do commit: 2026-09-04T14:07:09-04:00
+Licença declarada pelo projeto: MIT
+Clonado em: 2026-09-07 (America/Sao_Paulo)
+
