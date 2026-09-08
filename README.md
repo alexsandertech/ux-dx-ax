@@ -7,6 +7,7 @@ de avaliação por cenários.
 
 ## Entregáveis
 
+- `apresentacao-introdutoria/` — versão recomendada para introduzir UX, DX e AX.
 - `apresentacao/index.html` — 24 slides offline, navegáveis por teclado.
 - `apresentacao/AX-UX-DX.pdf` — versão PDF 16:9 pronta para compartilhar.
 - `apresentacao/roteiro-do-apresentador.md` — fala sugerida e dinâmica de 35–45 minutos.

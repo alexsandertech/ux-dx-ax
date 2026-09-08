@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UX, DX e AX sem mistério</title>
+    <style>
+      :root {
+        --paper: #f7f4ed;
+        --ink: #17202a;
+        --muted: #5e6872;
+        --ux: #f06449;
+        --dx: #2176ae;
+        --ax: #27865f;
+        --yellow: #f2c14e;
+        --line: rgba(23, 32, 42, .14);
+        --card: rgba(255, 255, 255, .72);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+      body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
+      a { color: inherit; text-underline-offset: 3px; }
+      code, pre { font-family: "SFMono-Regular", Consolas, monospace; }
+      .deck { width: 100%; height: 100%; position: relative; }
+      .slide {
+        display: none; position: absolute; inset: 0; overflow: hidden;
+        padding: clamp(44px, 6vh, 76px) clamp(56px, 7vw, 110px) clamp(58px, 7vh, 88px);
+        background:
+          radial-gradient(circle at 94% 10%, rgba(33,118,174,.08), transparent 28%),
+          radial-gradient(circle at 6% 92%, rgba(39,134,95,.08), transparent 27%),
+          var(--paper);
+      }
+      .slide::after { content: ""; position: absolute; width: 240px; height: 240px; border: 2px solid rgba(23,32,42,.07); border-radius: 50%; right: -110px; bottom: -120px; }
+      .slide.active { display: flex; flex-direction: column; animation: in .3s ease-out; }
+      @keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+      .content { position: relative; z-index: 1; width: min(100%, 1180px); margin: auto; }
+      .content.top { margin-top: 0; }
+      .kicker { font-size: 14px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; color: var(--ax); margin-bottom: 18px; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { font-size: clamp(64px, 9.5vw, 132px); line-height: .88; letter-spacing: -.07em; margin-bottom: 30px; }
+      h2 { font-size: clamp(42px, 5.7vw, 78px); line-height: .98; letter-spacing: -.055em; margin-bottom: 30px; max-width: 1050px; }
+      h3 { font-size: clamp(21px, 2.2vw, 30px); line-height: 1.12; margin-bottom: 12px; }
+      p, li { font-size: clamp(19px, 1.8vw, 27px); line-height: 1.42; }
+      .lead { font-size: clamp(26px, 3vw, 43px); line-height: 1.25; max-width: 1000px; color: #313b45; }
+      .small { font-size: clamp(14px, 1.25vw, 18px); color: var(--muted); }
+      .muted { color: var(--muted); }
+      .ux { color: var(--ux); } .dx { color: var(--dx); } .ax { color: var(--ax); }
+      .mark { background: linear-gradient(transparent 62%, rgba(242,193,78,.45) 62%); }
+      .grid { display: grid; gap: 18px; }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: clamp(20px, 2.5vw, 32px); box-shadow: 0 18px 50px rgba(30,40,50,.055); min-width: 0; }
+      .card p, .card li { font-size: clamp(16px, 1.45vw, 21px); }
+      .card p:last-child { margin-bottom: 0; }
+      .tag { display: inline-block; border: 1px solid currentColor; border-radius: 999px; padding: 5px 10px; margin-bottom: 16px; font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+      .number { display: block; font-size: clamp(56px, 7vw, 100px); line-height: .85; font-weight: 900; letter-spacing: -.07em; margin-bottom: 20px; }
+      .split { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(34px, 6vw, 86px); align-items: center; }
+      ul.clean { list-style: none; padding: 0; margin: 0; }
+      ul.clean li { position: relative; padding-left: 30px; margin: 12px 0; }
+      ul.clean li::before { content: "✓"; position: absolute; left: 0; color: var(--ax); font-weight: 900; }
+      .story { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; }
+      .story::before { content: ""; position: absolute; top: 54px; left: 16%; right: 16%; border-top: 2px dashed rgba(23,32,42,.22); z-index: -1; }
+      .avatar { width: 106px; height: 106px; border-radius: 50%; display: grid; place-items: center; font-size: 48px; margin-bottom: 22px; background: white; border: 3px solid currentColor; }
+      .question { border-left: 6px solid var(--yellow); padding: 16px 0 16px 26px; font-size: clamp(28px, 3.4vw, 48px); line-height: 1.2; font-weight: 720; }
+      .table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+      .table th { text-align: left; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 18px 6px; }
+      .table td { background: rgba(255,255,255,.72); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 18px; font-size: clamp(15px, 1.4vw, 20px); }
+      .table td:first-child { border-left: 1px solid var(--line); border-radius: 14px 0 0 14px; font-weight: 850; font-size: 25px; }
+      .table td:last-child { border-right: 1px solid var(--line); border-radius: 0 14px 14px 0; }
+      .chain { display: flex; align-items: stretch; gap: 10px; margin: 36px 0; }
+      .chain > div { flex: 1; min-height: 150px; padding: 22px 18px; background: white; border: 1px solid var(--line); border-radius: 18px; }
+      .chain .arrow { flex: 0 0 auto; background: none; border: 0; padding: 0 2px; display: grid; place-items: center; font-size: 30px; color: var(--muted); }
+      .chain b { font-size: 19px; display: block; margin-bottom: 10px; }
+      .chain span { color: var(--muted); font-size: 15px; line-height: 1.35; }
+      .before-after { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 18px; align-items: center; }
+      .arrow-big { text-align: center; font-size: 44px; color: var(--ax); }
+      .checklist { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+      .check { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 20px 16px; min-height: 190px; }
+      .check strong { display: block; font-size: 18px; margin: 16px 0 8px; }
+      .check span { font-size: 14px; line-height: 1.35; color: var(--muted); }
+      .icon { font-size: 36px; }
+      .steps { counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .step { counter-increment: step; border-top: 5px solid var(--ax); padding: 20px; background: white; border-radius: 0 0 18px 18px; }
+      .step::before { content: counter(step); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--ax); color: white; font-weight: 900; margin-bottom: 18px; }
+      .step p { font-size: 16px; color: var(--muted); }
+      .score { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+      .score-card { border: 2px solid currentColor; border-radius: 24px; padding: 28px; background: rgba(255,255,255,.75); }
+      .score-card .value { font-size: 76px; line-height: .9; font-weight: 900; letter-spacing: -.07em; }
+      .score-card p { font-size: 17px; color: var(--muted); margin-top: 18px; }
+      .callout { border-radius: 20px; background: #17202a; color: white; padding: 22px 28px; }
+      .callout p { margin: 0; font-size: clamp(18px, 1.65vw, 24px); }
+      .quote { font-size: clamp(34px, 4.3vw, 62px); line-height: 1.12; font-weight: 780; letter-spacing: -.04em; max-width: 1050px; }
+      .source { position: absolute; left: clamp(56px,7vw,110px); bottom: 22px; max-width: calc(100% - 210px); color: #77818a; font-size: 11px; z-index: 2; }
+      .slide-no { position: absolute; right: 30px; bottom: 21px; font: 12px/1 monospace; color: #899198; z-index: 3; }
+      .brand { position: fixed; left: 28px; top: 22px; z-index: 10; font-size: 11px; font-weight: 850; letter-spacing: .12em; color: #899198; }
+      .progress { position: fixed; left: 0; bottom: 0; height: 5px; background: linear-gradient(90deg,var(--ux),var(--dx),var(--ax)); z-index: 20; transition: width .2s; }
+      .controls { position: fixed; right: 20px; top: 17px; z-index: 20; display: flex; gap: 7px; opacity: .25; transition: opacity .2s; }
+      .controls:hover { opacity: 1; }
+      .controls button { width: 34px; height: 34px; border: 1px solid var(--line); background: rgba(255,255,255,.9); color: var(--ink); border-radius: 50%; cursor: pointer; }
+      .speaker-notes { display: none; }
+      .notes { display: none; position: fixed; z-index: 30; right: 22px; bottom: 24px; width: min(470px,calc(100vw - 44px)); max-height: 46vh; overflow: auto; background: rgba(23,32,42,.97); color: white; border-radius: 18px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+      .notes.open { display: block; }
+      .notes p { font-size: 15px; line-height: 1.45; margin: 0; }
+      .cover { background: #17202a; color: white; }
+      .cover::before { content: ""; position: absolute; width: 48vw; aspect-ratio: 1; right: -8vw; top: 8vh; border-radius: 50%; border: 8vw solid rgba(39,134,95,.26); box-shadow: 0 0 0 7vw rgba(33,118,174,.15), 0 0 0 14vw rgba(240,100,73,.1); }
+      .cover .content { margin-left: 0; }
+      .cover .kicker { color: #9de1c1; }
+      .cover .lead { color: #dce4e8; max-width: 820px; }
+      .cover-meta { margin-top: 34px; display: flex; gap: 24px; color: #aeb9c0; font-size: 15px; }
+      .refs { columns: 2; column-gap: 40px; margin: 0; padding-left: 22px; }
+      .refs li { break-inside: avoid; font-size: 15px; margin-bottom: 14px; color: #3f4952; }
+      @media (max-width: 850px) { .grid-3,.grid-5,.story,.checklist,.steps { grid-template-columns: repeat(2,1fr); } .split,.before-after { grid-template-columns: 1fr; } .arrow-big { transform: rotate(90deg); } .slide { overflow-y: auto; } }
+      @media print {
+        @page { size: 13.333in 7.5in; margin: 0; }
+        html,body { width: auto; height: auto; overflow: visible; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+        .deck { height: auto; }
+        .slide,.slide.active { display: flex !important; position: relative; width: 13.333in; height: 7.5in; overflow: hidden; page-break-after: always; break-after: page; padding: .55in .72in .65in; animation: none; }
+        .slide:last-child { page-break-after: auto; break-after: auto; }
+        .controls,.progress,.notes { display: none !important; }
+        .source { left: .72in; bottom: .18in; }
+        h1 { font-size: 84px; } h2 { font-size: 49px; } p,li { font-size: 19px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide cover active" data-title="Capa">
+        <div class="content">
+          <div class="kicker">Introdução para equipes de software</div>
+          <h1>UX, DX e AX<br />sem mistério</h1>
+          <p class="lead">Três formas de olhar para a experiência criada pelo mesmo software.</p>
+          <div class="cover-meta"><span>25–30 minutos</span><span>sem pré-requisitos</span><span>com exemplo prático</span></div>
+        </div>
+        <aside class="speaker-notes">Esta é uma conversa introdutória. O objetivo não é ensinar uma ferramenta, mas dar nomes a três perspectivas que já aparecem no trabalho da equipe.</aside>
+      </section>
+
+      <section class="slide" data-title="Objetivo">
+        <div class="content">
+          <div class="kicker">Ao final desta conversa</div>
+          <h2>Você conseguirá responder três perguntas</h2>
+          <div class="grid grid-3">
+            <div class="card"><span class="number ux">1</span><h3>Quem usa?</h3><p>Pessoa, desenvolvedor ou agente?</p></div>
+            <div class="card"><span class="number dx">2</span><h3>O que significa boa experiência?</h3><p>Conseguir atingir um objetivo com clareza e confiança.</p></div>
+            <div class="card"><span class="number ax">3</span><h3>Como começar?</h3><p>Observar uma tarefa real, encontrar atritos e melhorar.</p></div>
+          </div>
+        </div>
+        <aside class="speaker-notes">Não comece pelas siglas. Comece por quem está tentando realizar algo e qual é o objetivo.</aside>
+      </section>
+
+      <section class="slide" data-title="Uma história">
+        <div class="content top">
+          <div class="kicker">Uma história, três experiências</div>
+          <h2>Imagine uma loja online</h2>
+          <div class="story">
+            <div class="card ux"><div class="avatar">👩🏽</div><h3>Ana compra</h3><p>Quer encontrar um produto, pagar e acompanhar o pedido sem confusão.</p></div>
+            <div class="card dx"><div class="avatar">👨🏻‍💻</div><h3>Bruno desenvolve</h3><p>Precisa entender o código, integrar o pagamento e publicar com segurança.</p></div>
+            <div class="card ax"><div class="avatar">🤖</div><h3>Um agente ajuda</h3><p>Recebe a tarefa “acompanhe meu pedido e me avise se atrasar”.</p></div>
+          </div>
+          <p class="lead" style="margin-top:26px">O produto é o mesmo. <span class="mark">A experiência muda conforme quem interage.</span></p>
+        </div>
+        <aside class="speaker-notes">Use Ana, Bruno e o agente durante toda a apresentação. Isso evita definições abstratas.</aside>
+      </section>
+
+      <section class="slide" data-title="UX">
+        <div class="content">
+          <div class="kicker ux">1 · User Experience</div>
+          <div class="split">
+            <div><h2>UX é a experiência da pessoa usando o produto</h2><p class="lead">Ana consegue comprar com <b>clareza, eficiência e confiança</b>?</p></div>
+            <div class="card"><span class="tag ux">na prática</span><ul class="clean"><li>encontra o que procura</li><li>entende preços e prazos</li><li>conclui o pagamento</li><li>recebe feedback claro</li><li>consegue corrigir um erro</li></ul></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://www.iso.org/standard/77520.html">ISO 9241-210:2019</a> · <a href="https://www.iso.org/standard/63500.html">ISO 9241-11:2018</a></div>
+        <aside class="speaker-notes">UX não é apenas aparência. A ISO trata a experiência no contexto de uso e a usabilidade em termos como efetividade, eficiência e satisfação.</aside>
+      </section>
+
+      <section class="slide" data-title="DX">
+        <div class="content">
+          <div class="kicker dx">2 · Developer Experience</div>
+          <div class="split">
+            <div><h2>DX é a experiência de quem constrói e opera o software</h2><p class="lead">Bruno consegue mudar o sistema com <b>fluxo, feedback rápido e segurança</b>?</p></div>
+            <div class="card"><span class="tag dx">na prática</span><ul class="clean"><li>entende a arquitetura</li><li>prepara o ambiente</li><li>roda testes facilmente</li><li>recebe erros úteis</li><li>publica sem medo</li></ul></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">Microsoft Research: SPACE</a> · <a href="https://dora.dev/research/2025/dora-report/">DORA 2025</a></div>
+        <aside class="speaker-notes">DX também não é apenas velocidade. Inclui colaboração, bem-estar, qualidade, entendimento e capacidade de manter fluxo.</aside>
+      </section>
+
+      <section class="slide" data-title="O que é um agente">
+        <div class="content">
+          <div class="kicker ax">Antes de falar de AX</div>
+          <h2>Um agente não apenas responde — ele pode agir</h2>
+          <div class="chain">
+            <div><b>Recebe um objetivo</b><span>“acompanhe o pedido”</span></div><div class="arrow">→</div>
+            <div><b>Busca contexto</b><span>qual pedido? qual sistema?</span></div><div class="arrow">→</div>
+            <div><b>Escolhe ferramentas</b><span>API, código, navegador, CLI</span></div><div class="arrow">→</div>
+            <div><b>Executa e verifica</b><span>consulta, altera ou cria algo</span></div>
+          </div>
+          <div class="callout"><p>Quanto mais capacidade de ação, maior a necessidade de contexto, limites e verificação.</p></div>
+        </div>
+        <div class="source"><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI Risk Management Framework</a></div>
+        <aside class="speaker-notes">Um chatbot pode apenas redigir uma resposta. Um agente usa ferramentas e pode alterar estado. Essa é a diferença que torna AX importante.</aside>
+      </section>
+
+      <section class="slide" data-title="AX">
+        <div class="content">
+          <div class="kicker ax">3 · Agent Experience</div>
+          <div class="split">
+            <div><h2>AX é a experiência do agente ao tentar cumprir um objetivo</h2><p class="lead">O agente consegue <b>descobrir, entender, agir, verificar e se recuperar</b>?</p></div>
+            <div class="card"><span class="tag ax">na prática</span><ul class="clean"><li>encontra a ferramenta certa</li><li>entende entradas e saídas</li><li>recebe erros acionáveis</li><li>confirma o estado final</li><li>respeita permissões e limites</li></ul></div>
+          </div>
+          <p class="small" style="margin-top:22px"><b>Importante:</b> Agent Experience é um campo emergente. Aqui usamos uma definição prática, não uma norma ISO.</p>
+        </div>
+        <div class="source"><a href="https://agentexperience.ax/">AgentExperience.ax</a> · <a href="https://www.netlify.com/agent-experience/">Netlify: Agent Experience</a></div>
+        <aside class="speaker-notes">AX não significa que o agente “sente”. Significa avaliar a qualidade da interação entre agente, contexto, ferramentas e sistema.</aside>
+      </section>
+
+      <section class="slide" data-title="Comparação">
+        <div class="content top">
+          <div class="kicker">Colocando lado a lado</div>
+          <h2>As três experiências em uma tabela</h2>
+          <table class="table">
+            <thead><tr><th></th><th>Quem?</th><th>Objetivo</th><th>Atrito típico</th><th>Evidência</th></tr></thead>
+            <tbody>
+              <tr><td class="ux">UX</td><td>Pessoa</td><td>Usar o produto</td><td>Confusão, demora, erro</td><td>Tarefa concluída + percepção</td></tr>
+              <tr><td class="dx">DX</td><td>Desenvolvedor</td><td>Construir e operar</td><td>Setup, build, dependência</td><td>Fluxo, qualidade, feedback</td></tr>
+              <tr><td class="ax">AX</td><td>Agente de IA</td><td>Executar objetivo delegado</td><td>Contexto, ferramenta, verificação</td><td>Estado final + trajetória segura</td></tr>
+            </tbody>
+          </table>
+          <p class="lead" style="margin-top:24px">Experiência boa significa: <b>o ator alcança o objetivo no seu contexto.</b></p>
+        </div>
+        <aside class="speaker-notes">A tabela é a cola conceitual. Se a equipe guardar apenas um slide, que seja este.</aside>
+      </section>
+
+      <section class="slide" data-title="Relação">
+        <div class="content">
+          <div class="kicker">Não são três silos</div>
+          <h2>Uma melhoria pode beneficiar os três</h2>
+          <div class="grid grid-3">
+            <div class="card"><h3>Erro claro</h3><p><span class="ux">Ana</span> entende o problema.<br /><span class="dx">Bruno</span> diagnostica.<br /><span class="ax">Agente</span> decide se corrige ou para.</p></div>
+            <div class="card"><h3>Contrato consistente</h3><p><span class="ux">Ana</span> vê comportamento previsível.<br /><span class="dx">Bruno</span> integra sem adivinhar.<br /><span class="ax">Agente</span> escolhe parâmetros corretos.</p></div>
+            <div class="card"><h3>Feedback rápido</h3><p><span class="ux">Ana</span> não abandona.<br /><span class="dx">Bruno</span> mantém o fluxo.<br /><span class="ax">Agente</span> evita tentativas inúteis.</p></div>
+          </div>
+          <div class="callout" style="margin-top:28px"><p><b>Boa DX costuma ser a base da AX:</b> documentação, testes, comandos e observabilidade ajudam humanos e agentes.</p></div>
+        </div>
+        <aside class="speaker-notes">AX não exige jogar fora práticas existentes. Muitas melhorias começam arrumando a experiência do próprio time de desenvolvimento.</aside>
+      </section>
+
+      <section class="slide" data-title="Antes e depois">
+        <div class="content top">
+          <div class="kicker">Um exemplo simples para desenvolvedores</div>
+          <h2>O agente recebe: “corrija o cálculo e rode os testes”</h2>
+          <div class="before-after">
+            <div class="card" style="border-color:rgba(240,100,73,.5)"><span class="tag ux">antes</span><ul class="clean"><li>não há orientação inicial</li><li>comando de teste tem nome inesperado</li><li>contrato está implícito</li><li>agente precisa explorar</li></ul></div>
+            <div class="arrow-big">→</div>
+            <div class="card" style="border-color:rgba(39,134,95,.5)"><span class="tag ax">depois</span><ul class="clean"><li>README mostra como começar</li><li><code>AGENTS.md</code> explica regras</li><li><code>npm test</code> é canônico</li><li>critério de pronto é explícito</li></ul></div>
+          </div>
+          <p class="question" style="margin-top:28px">AX pergunta: qual ambiente permite atingir o mesmo objetivo com menos dúvida e menor risco?</p>
+        </div>
+        <div class="source"><a href="https://agents.md/">AGENTS.md — formato aberto de instruções para agentes</a></div>
+        <aside class="speaker-notes">Este é o laboratório existente traduzido. Não estamos dando a resposta do bug; estamos oferecendo o contexto que qualquer novo contribuidor precisaria.</aside>
+      </section>
+
+      <section class="slide" data-title="Boa AX">
+        <div class="content top">
+          <div class="kicker">Cinco fundamentos</div>
+          <h2>O que torna uma experiência boa para agentes?</h2>
+          <div class="checklist">
+            <div class="check"><div class="icon">🧭</div><strong>Contexto claro</strong><span>O agente sabe onde começar e quais regras seguir.</span></div>
+            <div class="check"><div class="icon">🧰</div><strong>Ações simples</strong><span>APIs, CLIs e ferramentas têm contratos previsíveis.</span></div>
+            <div class="check"><div class="icon">💬</div><strong>Feedback útil</strong><span>Erros explicam o que aconteceu e o próximo passo.</span></div>
+            <div class="check"><div class="icon">✅</div><strong>Verificação</strong><span>Testes ou consultas confirmam o estado real.</span></div>
+            <div class="check"><div class="icon">🛡️</div><strong>Segurança</strong><span>Permissões, limites, sandbox e recuperação.</span></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/index">MCP Specification</a> · <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Agentic Top 10</a></div>
+        <aside class="speaker-notes">Se quiser uma frase mnemônica: contexto para entender, ferramenta para agir, feedback para decidir, teste para confiar e limite para proteger.</aside>
+      </section>
+
+      <section class="slide" data-title="Como avaliar">
+        <div class="content top">
+          <div class="kicker">Avaliação sem complicação</div>
+          <h2>Comece observando uma tarefa real</h2>
+          <div class="steps">
+            <div class="step"><h3>Escolha</h3><p>Uma tarefa pequena, frequente e segura.</p></div>
+            <div class="step"><h3>Execute</h3><p>Dê o mesmo objetivo e um ambiente isolado.</p></div>
+            <div class="step"><h3>Observe</h3><p>Onde o agente se perdeu, errou ou pediu ajuda?</p></div>
+            <div class="step"><h3>Verifique</h3><p>O estado final está correto? O caminho foi seguro?</p></div>
+          </div>
+          <div class="callout" style="margin-top:26px"><p>Não avalie apenas a resposta final. Observe também tentativas, erros, ferramentas, tempo e capacidade de recuperação.</p></div>
+        </div>
+        <aside class="speaker-notes">Esse processo pode começar manualmente. Ferramenta entra depois, quando a equipe quiser repetir e comparar.</aside>
+      </section>
+
+      <section class="slide" data-title="AXIS">
+        <div class="content">
+          <div class="kicker ax">Ferramenta open source</div>
+          <div class="split">
+            <div><h2>AXIS ajuda a repetir essa avaliação</h2><p class="lead">Você descreve uma tarefa e seus critérios. O AXIS executa o agente, guarda o caminho percorrido e gera um relatório.</p></div>
+            <div class="card"><span class="tag ax">pense assim</span><p class="quote">É como um teste automatizado, mas observando a experiência do agente.</p><p class="small">Projeto da Netlify · licença MIT · código aberto.</p></div>
+          </div>
+        </div>
+        <div class="source"><a href="https://github.com/netlify/axis">github.com/netlify/axis</a> · <a href="https://axis.run/">axis.run</a></div>
+        <aside class="speaker-notes">Evite entrar nos quatro scores aqui. Para uma introdução basta entender cenário, execução, observação e relatório.</aside>
+      </section>
+
+      <section class="slide" data-title="Proposta anterior">
+        <div class="content top">
+          <div class="kicker">O que eu propus no material anterior?</div>
+          <h2>Traduzindo a proposta para linguagem simples</h2>
+          <div class="grid grid-2">
+            <div class="card"><span class="number ax">1</span><h3>Não avaliar “a IA” isoladamente</h3><p>Avaliar se <b>o nosso projeto</b> ajuda ou atrapalha o agente a trabalhar.</p></div>
+            <div class="card"><span class="number dx">2</span><h3>Criar um exemplo antes/depois</h3><p>Mesmo código e mesmo bug; a diferença foi documentação, comandos e regras claras.</p></div>
+            <div class="card"><span class="number ux">3</span><h3>Usar evidência</h3><p>Executar o agente, verificar testes e comparar tempo, passos e resultado.</p></div>
+            <div class="card"><span class="number" style="color:#7554a5">4</span><h3>Deixar algo reutilizável</h3><p>Checklist, scanner local, cenários e o projeto AXIS clonado.</p></div>
+          </div>
+        </div>
+        <aside class="speaker-notes">Diga claramente: a primeira apresentação era a parte 2, “como medir”. Faltou a parte 1, “o que é”. Esta nova apresentação preenche essa lacuna.</aside>
+      </section>
+
+      <section class="slide" data-title="Resultado anterior">
+        <div class="content">
+          <div class="kicker">O que aconteceu no exemplo?</div>
+          <h2>Ambos resolveram. O “depois” chegou lá com menos esforço.</h2>
+          <div class="score">
+            <div class="score-card ux"><span class="tag ux">antes</span><div class="value">115,7 s</div><p>12 interações · resultado 98/100</p></div>
+            <div class="score-card ax"><span class="tag ax">depois</span><div class="value">56,5 s</div><p>9 interações · resultado 99/100</p></div>
+          </div>
+          <p class="question" style="margin-top:30px">A lição não é “AGENTS.md sempre melhora tudo”. É: <span class="mark">contexto é uma hipótese que podemos testar.</span></p>
+          <p class="small">Foi somente uma execução por condição. Serve para demonstrar o método, não para provar uma regra universal.</p>
+        </div>
+        <div class="source">Evidências: <code>demo/evidencias/resultado-*.json</code> · análise: <code>relatorios/comparacao-execucoes.md</code></div>
+        <aside class="speaker-notes">A nota quase não mudou porque os dois concluíram. Tempo e número de interações revelaram melhor a diferença. Reforce N=1.</aside>
+      </section>
+
+      <section class="slide" data-title="Por onde começar">
+        <div class="content top">
+          <div class="kicker">Na próxima semana</div>
+          <h2>Comece com uma tarefa, não com um programa de transformação</h2>
+          <div class="grid grid-3">
+            <div class="card"><span class="tag ax">escolha</span><h3>Uma tarefa segura</h3><p>Corrigir um bug com teste, consultar um dado não sensível ou gerar um artefato descartável.</p></div>
+            <div class="card"><span class="tag ax">pergunte</span><h3>Cinco perguntas</h3><p>Encontrou? Entendeu? Agiu? Verificou? Recuperou?</p></div>
+            <div class="card"><span class="tag ax">melhore</span><h3>Um atrito</h3><p>Documente um comando, melhore um erro ou adicione um teste. Execute novamente.</p></div>
+          </div>
+          <div class="callout" style="margin-top:28px"><p><b>Primeiro objetivo:</b> aprender onde o sistema é confuso para agentes — e se isso também prejudica os desenvolvedores.</p></div>
+        </div>
+        <aside class="speaker-notes">Converta a conversa em ação: peça à equipe um exemplo de tarefa recorrente e pequena.</aside>
+      </section>
+
+      <section class="slide" data-title="Resumo">
+        <div class="content">
+          <div class="kicker">Resumo</div>
+          <h2>Três experiências, uma mesma intenção</h2>
+          <div class="grid grid-3">
+            <div class="card"><span class="number ux">UX</span><p>A pessoa consegue usar o produto?</p></div>
+            <div class="card"><span class="number dx">DX</span><p>O desenvolvedor consegue construir e operar?</p></div>
+            <div class="card"><span class="number ax">AX</span><p>O agente consegue cumprir o objetivo com segurança?</p></div>
+          </div>
+          <p class="quote" style="margin-top:34px">Boa experiência é tornar o caminho até o objetivo mais claro, confiável e seguro.</p>
+        </div>
+        <aside class="speaker-notes">Encerre pedindo que cada pessoa escolha qual dos três públicos costuma ficar invisível nas decisões atuais.</aside>
+      </section>
+
+      <section class="slide" data-title="Fontes">
+        <div class="content top">
+          <div class="kicker">Fontes para continuar</div>
+          <h2>Referências usadas</h2>
+          <ol class="refs">
+            <li><a href="https://www.iso.org/standard/77520.html">ISO 9241-210:2019</a> — design centrado em humanos.</li>
+            <li><a href="https://www.iso.org/standard/63500.html">ISO 9241-11:2018</a> — usabilidade.</li>
+            <li><a href="https://www.microsoft.com/en-us/research/publication/the-space-of-developer-productivity-theres-more-to-it-than-you-think/">Forsgren et al., SPACE</a> — Developer Experience e produtividade.</li>
+            <li><a href="https://dora.dev/research/2025/dora-report/">DORA 2025</a> — desenvolvimento assistido por IA.</li>
+            <li><a href="https://agentexperience.ax/">AgentExperience.ax</a> — definição comunitária de AX.</li>
+            <li><a href="https://www.netlify.com/agent-experience/">Netlify: Agent Experience</a> — introdução ao tema.</li>
+            <li><a href="https://github.com/netlify/axis">Netlify AXIS</a> — projeto open source usado.</li>
+            <li><a href="https://agents.md/">AGENTS.md</a> — formato aberto para instruções.</li>
+            <li><a href="https://modelcontextprotocol.io/specification/2025-06-18/server/index">Model Context Protocol</a> — interfaces para agentes.</li>
+            <li><a href="https://www.nist.gov/itl/ai-risk-management-framework">NIST AI RMF</a> e <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/">OWASP Agentic Top 10</a> — risco e segurança.</li>
+          </ol>
+          <p class="small" style="margin-top:18px">Bibliografia comentada e limitações metodológicas em <code>fontes.md</code>.</p>
+        </div>
+        <aside class="speaker-notes">Diferencie fontes normativas de UX, pesquisa de DX e referências emergentes de AX.</aside>
+      </section>
+    </main>
+
+    <div class="brand">UX · DX · AX — INTRO</div>
+    <div class="controls"><button id="prev">←</button><button id="note">N</button><button id="full">⛶</button><button id="next">→</button></div>
+    <div class="notes" id="notes"><p></p></div>
+    <div class="progress" id="progress"></div>
+    <script>
+      const slides=[...document.querySelectorAll('.slide')],progress=document.getElementById('progress'),notes=document.getElementById('notes');
+      let index=Math.max(0,Math.min(slides.length-1,Number(location.hash.slice(1))-1||0));
+      slides.forEach((slide,i)=>{const n=document.createElement('span');n.className='slide-no';n.textContent=`${String(i+1).padStart(2,'0')} / ${String(slides.length).padStart(2,'0')}`;slide.append(n)});
+      function render(hash=true){slides.forEach((s,i)=>s.classList.toggle('active',i===index));progress.style.width=`${(index+1)/slides.length*100}%`;document.title=`${slides[index].dataset.title} — UX, DX e AX`;notes.querySelector('p').textContent=slides[index].querySelector('.speaker-notes')?.textContent||'';if(hash)history.replaceState(null,'',`#${index+1}`)}
+      function go(d){index=Math.max(0,Math.min(slides.length-1,index+d));render()}
+      document.getElementById('prev').onclick=()=>go(-1);document.getElementById('next').onclick=()=>go(1);document.getElementById('note').onclick=()=>notes.classList.toggle('open');document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+      addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(-1)}if(e.key==='Home'){index=0;render()}if(e.key==='End'){index=slides.length-1;render()}if(e.key.toLowerCase()==='n')notes.classList.toggle('open');if(e.key.toLowerCase()==='f')document.getElementById('full').click()});
+      render(false);
+    </script>
+  </body>
+</html>
+
